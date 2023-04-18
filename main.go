@@ -1,14 +1,12 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/linweiyuan/go-chatgpt-api/api/chatgpt"
 	"github.com/linweiyuan/go-chatgpt-api/api/official"
 	"github.com/linweiyuan/go-chatgpt-api/middleware"
 	"github.com/linweiyuan/go-chatgpt-api/webdriver"
+	"log"
 )
 
 func init() {
