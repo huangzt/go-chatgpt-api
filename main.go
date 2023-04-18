@@ -8,6 +8,7 @@ import (
 	"github.com/linweiyuan/go-chatgpt-api/middleware"
 	"github.com/linweiyuan/go-chatgpt-api/webdriver"
 	"log"
+	"net/http"
 )
 
 func init() {
@@ -92,6 +93,10 @@ func main() {
 
 	router.POST("/api/auth/login", func(c *gin.Context) {
 		chatgpt.DealFromAiFakeOpen("/api/auth/login", c)
+	})
+
+	router.GET("/auth", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "https://ai.fakeopen.com/auth")
 	})
 
 	// official api

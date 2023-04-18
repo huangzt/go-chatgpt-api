@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -599,7 +601,15 @@ func DealFromAiFakeOpen(apiPath string, c *gin.Context) {
 
 	req.Header = c.Request.Header // 将原始请求的Header设置到转发请求上
 
-	client := http.Client{}     // 创建HTTP Client
+	client := http.Client{} // 创建HTTP Client
+
+	networkProxyServer := os.Getenv("NETWORK_PROXY_SERVER")
+	if networkProxyServer != "" {
+		proxyUrl, _ := url.Parse(networkProxyServer)                 // 设置代理地址
+		transport := &http.Transport{Proxy: http.ProxyURL(proxyUrl)} // 创建 Transport 对象
+		client = http.Client{Transport: transport}                   // 创建 HTTP 客户端
+	}
+
 	resp, err := client.Do(req) // 发送转发请求
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
