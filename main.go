@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/linweiyuan/go-chatgpt-api/api/chatgpt"
 	"github.com/linweiyuan/go-chatgpt-api/api/official"
@@ -26,6 +27,12 @@ func Recover() gin.HandlerFunc {
 }
 func main() {
 	router := gin.Default()
+
+	// 添加CORS中间件
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	router.Use(cors.New(config))
+
 	router.Use(Recover())
 	router.Use(middleware.HeaderCheckMiddleware())
 
@@ -65,17 +72,8 @@ func main() {
 	}
 	router.GET("/dashboard/billing/credit_grants", official.CheckUsage)
 
-	router.Use(cors)
-
 	err := router.Run(":8080")
 	if err != nil {
 		log.Fatal("Failed to start server:" + err.Error())
 	}
-}
-
-func cors(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "*")
-	c.Header("Access-Control-Allow-Headers", "*")
-	c.Next()
 }
