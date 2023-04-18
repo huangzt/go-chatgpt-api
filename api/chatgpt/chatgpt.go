@@ -3,6 +3,7 @@ package chatgpt
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"sync"
@@ -582,21 +583,35 @@ func GetModels(c *gin.Context) {
 	c.Writer.Write([]byte(responseText.(string)))
 }
 
-func GetApiData(apiPath string, c *gin.Context) {
-	url := apiPrefix + "/" + apiPath
-	errorMessage := "Failed to get " + apiPath
-	accessToken := api.GetAccessToken(c.GetHeader(api.AuthorizationHeader))
-	script := getGetScript(url, accessToken, errorMessage)
-	responseText, err := webdriver.WebDriver.ExecuteScriptAsync(script, nil)
-	if handleSeleniumError(err, script, c) {
+func DealFromAiFakeOpen(apiPath string, c *gin.Context) {
+	proxyURL := "https://ai.fakeopen.com" + apiPath // 转发目标URL
+	method := c.Request.Method                      // 获取请求方法
+	var body io.Reader                              // 定义body
+	if method == "POST" || method == "PUT" {        // 如果是POST或PUT请求，则读取请求Body
+		body = c.Request.Body
+	}
+
+	req, err := http.NewRequest(method, proxyURL, body) // 创建转发请求
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	if responseText == errorMessage {
-		tryToRefreshPage()
-		c.JSON(http.StatusInternalServerError, api.ReturnMessage(errorMessage))
+	req.Header = c.Request.Header // 将原始请求的Header设置到转发请求上
+
+	client := http.Client{}     // 创建HTTP Client
+	resp, err := client.Do(req) // 发送转发请求
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+	defer resp.Body.Close() // 关闭响应Body
 
-	c.Writer.Write([]byte(responseText.(string)))
+	// 将转发请求得到的响应Header设置到原始响应中
+	for k, v := range resp.Header {
+		c.Header(k, v[0])
+	}
+
+	c.Status(resp.StatusCode)    // 设置响应状态码
+	io.Copy(c.Writer, resp.Body) // 将转发响应的Body写入原始响应
 }

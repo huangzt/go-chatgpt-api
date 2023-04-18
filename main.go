@@ -35,12 +35,15 @@ func main() {
 	config.AllowMethods = []string{"*"}
 	router.Use(cors.New(config))
 
-	router.Use(Recover())
-	router.Use(middleware.HeaderCheckMiddleware())
+	//router.Use(Recover())
+	//router.Use(middleware.HeaderCheckMiddleware())
 
 	// chatgpt
 	conversationsGroup := router.Group("/api/conversations")
 	{
+		conversationsGroup.Use(Recover())
+		conversationsGroup.Use(middleware.HeaderCheckMiddleware())
+
 		conversationsGroup.GET("", chatgpt.GetConversations)
 
 		// PATCH is official method, POST is added for Java support
@@ -50,6 +53,9 @@ func main() {
 
 	conversationGroup := router.Group("/api/conversation")
 	{
+		conversationGroup.Use(Recover())
+		conversationGroup.Use(middleware.HeaderCheckMiddleware())
+
 		conversationGroup.POST("", chatgpt.StartConversation)
 
 		conversationGroup.POST("/gen_title/:id", chatgpt.GenerateTitle)
@@ -63,11 +69,29 @@ func main() {
 		conversationGroup.POST("/message_feedback", chatgpt.FeedbackMessage)
 	}
 
-	router.GET("/api/models", chatgpt.GetModels)
+	modelsGroup := router.Group("/api/models")
+	{
+		modelsGroup.Use(Recover())
+		modelsGroup.Use(middleware.HeaderCheckMiddleware())
 
+		modelsGroup.GET("", chatgpt.GetModels)
+	}
+
+	// 没有的api从大老那里拿
 	router.GET("/api/conversation_limit", func(c *gin.Context) {
-		//chatgpt.GetApiData("conversation_limit", c)
-		c.Writer.Write([]byte("{\"message_cap\":25,\"message_cap_window\":180,\"message_disclaimer\":{\"textarea\":\"GPT-4 currently has a cap of 25 messages every 3 hours.\",\"model-switcher\":\"You've reached the GPT-4 cap, which gives all ChatGPT Plus users a chance to try the model.\\n\\nPlease check back soon.\"}}"))
+		chatgpt.DealFromAiFakeOpen("/api/conversation_limit", c)
+	})
+
+	router.GET("/auth/endpoint", func(c *gin.Context) {
+		chatgpt.DealFromAiFakeOpen("/auth/endpoint", c)
+	})
+
+	router.POST("/auth/token", func(c *gin.Context) {
+		chatgpt.DealFromAiFakeOpen("/auth/token", c)
+	})
+
+	router.POST("/api/auth/login", func(c *gin.Context) {
+		chatgpt.DealFromAiFakeOpen("/api/auth/login", c)
 	})
 
 	// official api
