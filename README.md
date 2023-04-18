@@ -1,4 +1,8 @@
-# 本项目主要是简单修改以适用于前端[pandora](https://github.com/pengzhile/pandora)
+# 本项目主要是简单修改以适用于以下使用反代的前端
+### [pengzhile/pandora](https://github.com/pengzhile/pandora)
+### [Kerwin1202/chatgpt-web](https://github.com/Kerwin1202/chatgpt-web)
+### [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web)
+### 接口地址增加路径，如：http://127.0.0.1:8080/api/conversation
 
 # go-chatgpt-api
 
