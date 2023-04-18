@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/linweiyuan/go-chatgpt-api/api/chatgpt"
@@ -26,9 +27,19 @@ func Recover() gin.HandlerFunc {
 }
 
 func cors(c *gin.Context) {
+	// 添加跨域响应头
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Methods", "*")
 	c.Header("Access-Control-Allow-Headers", "*")
+
+	// 判断是否为预检请求
+	if c.Request.Method == "OPTIONS" {
+		c.Header("Access-Control-Max-Age", "86400") // 预检响应有效期
+		c.Header("Access-Control-Allow-Methods", "*")
+		c.Header("Access-Control-Allow-Headers", "*")
+		c.AbortWithStatus(http.StatusNoContent) // 终止请求处理并返回预检响应
+		return
+	}
 	c.Next()
 }
 
