@@ -14,11 +14,11 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: linweiyuan
+          username: huangzhenting
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: .
           push: true
-          tags: linweiyuan/go-chatgpt-api
+          tags: huangzhenting/go-chatgpt-api

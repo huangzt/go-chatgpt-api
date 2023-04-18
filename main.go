@@ -30,7 +30,7 @@ func main() {
 	router.Use(middleware.HeaderCheckMiddleware())
 
 	// chatgpt
-	conversationsGroup := router.Group("/conversations")
+	conversationsGroup := router.Group("/api/conversations")
 	{
 		conversationsGroup.GET("", chatgpt.GetConversations)
 
@@ -39,7 +39,7 @@ func main() {
 		conversationsGroup.POST("", chatgpt.ClearConversations)
 	}
 
-	conversationGroup := router.Group("/conversation")
+	conversationGroup := router.Group("/api/conversation")
 	{
 		conversationGroup.POST("", chatgpt.StartConversation)
 		conversationGroup.POST("/gen_title/:id", chatgpt.GenerateTitle)
@@ -52,7 +52,11 @@ func main() {
 		conversationGroup.POST("/message_feedback", chatgpt.FeedbackMessage)
 	}
 
-	router.GET("/models", chatgpt.GetModels)
+	router.GET("/api/models", chatgpt.GetModels)
+
+	router.GET("/api/conversation_limit", func(c *gin.Context) {
+		chatgpt.GetApiData("conversation_limit", c)
+	})
 
 	// official api
 	apiGroup := router.Group("/v1")
@@ -61,8 +65,17 @@ func main() {
 	}
 	router.GET("/dashboard/billing/credit_grants", official.CheckUsage)
 
+	router.Use(cors)
+
 	err := router.Run(":8080")
 	if err != nil {
 		log.Fatal("Failed to start server:" + err.Error())
 	}
+}
+
+func cors(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "*")
+	c.Header("Access-Control-Allow-Headers", "*")
+	c.Next()
 }

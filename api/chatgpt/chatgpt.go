@@ -581,3 +581,22 @@ func GetModels(c *gin.Context) {
 
 	c.Writer.Write([]byte(responseText.(string)))
 }
+
+func GetApiData(apiPath string, c *gin.Context) {
+	url := apiPrefix + "/" + apiPath
+	errorMessage := "Failed to get " + apiPath
+	accessToken := api.GetAccessToken(c.GetHeader(api.AuthorizationHeader))
+	script := getGetScript(url, accessToken, errorMessage)
+	responseText, err := webdriver.WebDriver.ExecuteScriptAsync(script, nil)
+	if handleSeleniumError(err, script, c) {
+		return
+	}
+
+	if responseText == errorMessage {
+		tryToRefreshPage()
+		c.JSON(http.StatusInternalServerError, api.ReturnMessage(errorMessage))
+		return
+	}
+
+	c.Writer.Write([]byte(responseText.(string)))
+}
