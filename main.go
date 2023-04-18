@@ -66,7 +66,8 @@ func main() {
 	router.GET("/api/models", chatgpt.GetModels)
 
 	router.GET("/api/conversation_limit", func(c *gin.Context) {
-		chatgpt.GetApiData("conversation_limit", c)
+		//chatgpt.GetApiData("conversation_limit", c)
+		c.Writer.Write([]byte("{\"message_cap\":25,\"message_cap_window\":180,\"message_disclaimer\":{\"textarea\":\"GPT-4 currently has a cap of 25 messages every 3 hours.\",\"model-switcher\":\"You've reached the GPT-4 cap, which gives all ChatGPT Plus users a chance to try the model.\\n\\nPlease check back soon.\"}}"))
 	})
 
 	// official api
