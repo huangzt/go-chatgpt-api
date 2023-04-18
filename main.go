@@ -83,18 +83,6 @@ func main() {
 		chatgpt.DealFromAiFakeOpen("/api/conversation_limit", c)
 	})
 
-	router.GET("/auth/endpoint", func(c *gin.Context) {
-		chatgpt.DealFromAiFakeOpen("/auth/endpoint", c)
-	})
-
-	router.POST("/auth/token", func(c *gin.Context) {
-		chatgpt.DealFromAiFakeOpen("/auth/token", c)
-	})
-
-	router.POST("/api/auth/login", func(c *gin.Context) {
-		chatgpt.DealFromAiFakeOpen("/api/auth/login", c)
-	})
-
 	router.GET("/auth", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "https://ai.fakeopen.com/auth")
 	})
