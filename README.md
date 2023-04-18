@@ -1,3 +1,5 @@
+# 本项目主要是简单修改以适用于前端[pandora](https://github.com/pengzhile/pandora)
+
 # go-chatgpt-api
 
 Bypass Cloudflare using [undetected_chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver) to use ChatGPT API.
@@ -20,7 +22,7 @@ Use both ChatGPT mode and API mode:
 services:
   go-chatgpt-api:
     container_name: go-chatgpt-api
-    image: linweiyuan/go-chatgpt-api
+    image: huangzhenting/go-chatgpt-api
     ports:
       - 8080:8080
     environment:
@@ -45,7 +47,7 @@ Use API mode only:
 services:
   go-chatgpt-api:
     container_name: go-chatgpt-api
-    image: linweiyuan/go-chatgpt-api
+    image: huangzhenting/go-chatgpt-api
     ports:
       - 8080:8080
     environment:
@@ -62,7 +64,7 @@ If your IP is blocked, like "Access denied", try this (with [Cloudflare WARP](ht
 services:
   go-chatgpt-api:
     container_name: go-chatgpt-api
-    image: linweiyuan/go-chatgpt-api
+    image: huangzhenting/go-chatgpt-api
     environment:
       - GIN_MODE=release
       - CHATGPT_PROXY_SERVER=http://chatgpt-proxy-server:9515
