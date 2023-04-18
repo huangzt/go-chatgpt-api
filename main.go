@@ -34,6 +34,36 @@ func cors(c *gin.Context) {
 	c.Next()
 }
 
+func optionsGetHandler(c *gin.Context) {
+	// Set headers for CORS
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET")
+	c.Header("Access-Control-Allow-Headers", "*")
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
+}
+
+func optionsPostHandler(c *gin.Context) {
+	// Set headers for CORS
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "POST")
+	c.Header("Access-Control-Allow-Headers", "*")
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
+}
+
+func optionsHandler(c *gin.Context) {
+	// Set headers for CORS
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "*")
+	c.Header("Access-Control-Allow-Headers", "*")
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
+}
+
 func main() {
 	router := gin.Default()
 	router.Use(cors)
@@ -43,7 +73,8 @@ func main() {
 	// chatgpt
 	conversationsGroup := router.Group("/api/conversations")
 	{
-		conversationsGroup.OPTIONS("", chatgpt.GetConversations)
+		conversationsGroup.OPTIONS("", optionsHandler)
+		conversationsGroup.GET("", chatgpt.GetConversations)
 
 		// PATCH is official method, POST is added for Java support
 		conversationsGroup.PATCH("", chatgpt.ClearConversations)
@@ -52,20 +83,28 @@ func main() {
 
 	conversationGroup := router.Group("/api/conversation")
 	{
+		conversationsGroup.OPTIONS("", optionsPostHandler)
 		conversationGroup.POST("", chatgpt.StartConversation)
+
+		conversationsGroup.OPTIONS("/gen_title/:id", optionsPostHandler)
 		conversationGroup.POST("/gen_title/:id", chatgpt.GenerateTitle)
-		conversationGroup.OPTIONS("/:id", chatgpt.GetConversation)
+
+		conversationsGroup.OPTIONS("/:id", optionsHandler)
+		conversationGroup.GET("/:id", chatgpt.GetConversation)
 
 		// rename or delete conversation use a same API with different parameters
 		conversationGroup.PATCH("/:id", chatgpt.UpdateConversation)
 		conversationGroup.POST("/:id", chatgpt.UpdateConversation)
 
+		conversationsGroup.OPTIONS("/message_feedback", optionsPostHandler)
 		conversationGroup.POST("/message_feedback", chatgpt.FeedbackMessage)
 	}
 
-	router.OPTIONS("/api/models", chatgpt.GetModels)
+	router.OPTIONS("/api/models", optionsGetHandler)
+	router.GET("/api/models", chatgpt.GetModels)
 
-	router.OPTIONS("/api/conversation_limit", func(c *gin.Context) {
+	router.OPTIONS("/api/conversation_limit", optionsGetHandler)
+	router.GET("/api/conversation_limit", func(c *gin.Context) {
 		chatgpt.GetApiData("conversation_limit", c)
 	})
 
